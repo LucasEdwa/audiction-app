@@ -1,29 +1,43 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auction Site</title>
-    <link rel="stylesheet" href="/style.css">
-    </head>
+    <title>Bilauktioner - Exklusiva bilar</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
   <body>
-    <section>
-      <h1>All auctions</h1>
-    </section>
-    <section>
-  <table >
-      <thead>
-        <tr>
-          <td>ID</td>
-          <td>Name</td>
-          <td></td>
-        </tr>
-      </thead>
-      <tbody id="auctionRows"></tbody>
-    </table>
-  </section>
-
+    <header class="site-header">
+      <div class="header-content">
+        <h1>Aktuella bilauktioner</h1>
+        <p class="header-description">Upptäck exklusiva bilar från världens främsta tillverkare</p>
+      </div>
+    </header>
     
+    <main class="main-content">
+      <section class="filters-section">
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">Alla bilar</button>
+          <button class="filter-btn" data-filter="luxury">Lyxbilar</button>
+          <button class="filter-btn" data-filter="sport">Sportbilar</button>
+          <button class="filter-btn" data-filter="classic">Klassiska</button>
+          <button class="filter-btn" data-filter="electric">Elbilar</button>
+          <button class="filter-btn" data-filter="suv">SUV</button>
+        </div>
+      </section>
+
+      <section class="auctions-section">
+        <div class="products-grid" id="auctionGrid">
+          <!-- Produktkorten kommer att läggas till här dynamiskt via JavaScript -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2024 Bilauktioner. Alla rättigheter förbehållna.</p>
+    </footer>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

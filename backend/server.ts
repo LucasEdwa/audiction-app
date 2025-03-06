@@ -1,9 +1,9 @@
 import express from 'express';
 import http from 'http';
 import { Server, Socket } from 'socket.io';
-import *  as data  from './data/database';
+import * as data from './data/database';
+import { IBid } from './data/types';
 import cors from 'cors';
-import { IBid } from './data/auction';
 
 const app = express();
 app.use(cors())
