@@ -22,14 +22,12 @@ io.on('connection', (socket: Socket) => {
   console.log('A user connected:', socket.id);
 
   
-// // SMARTASTE ROOMHANTERINGEN
-//   var query = socket.handshake.query;
-//   var roomName = query.roomName as string;
-//   socket.join(roomName);
+ 
+   var query = socket.handshake.query;
+  var roomName = query.roomName as string;
+  socket.join(roomName);
 
-  // Lägg till socketio message placeBid (namn, belopp)
 
-  // Handle disconnection
   socket.on("send-bid", (bid:IBid)=>{
     socket.emit("bid", bid)
   })

@@ -25,3 +25,5 @@ export class Auction implements IAuction {
         this.bids = [];
     }
 }
+
+export { IBid };
