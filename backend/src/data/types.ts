@@ -8,6 +8,7 @@ export interface IAuction {
     endTime: Date;
     status: 'active' | 'ended';
     createdAt: Date;
+    category: 'luxury' | 'sport' | 'classic' | 'electric' | 'suv';
     bids: IBid[];
 }
 
@@ -22,4 +23,5 @@ export interface IBid {
 export interface IUser {
     id: string;
     name: string;
+    email: string;
 } 

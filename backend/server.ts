@@ -1,9 +1,13 @@
 import express from 'express';
 import http from 'http';
 import { Server, Socket } from 'socket.io';
-import *  as data  from './data/database';
+import * as data from './data/database';
+import { IBid } from './data/types';
 import cors from 'cors';
-import { IBid } from './data/auction';
+<<<<<<< HEAD
+=======
+import { IBid } from './data/types';
+>>>>>>> 534b81656d72410efaab4aa73f9bff8da6926de3
 
 const app = express();
 app.use(cors())
@@ -22,11 +26,12 @@ io.on('connection', (socket: Socket) => {
   console.log('A user connected:', socket.id);
 
   
- 
+// // SMARTASTE ROOMHANTERINGEN
   var query = socket.handshake.query;
   var roomName = query.roomName as string;
   socket.join(roomName);
 
+  // Lägg till socketio message placeBid (namn, belopp)
 
   socket.on("send-bid", (bid:IBid)=>{
     socket.emit("bid", bid)
