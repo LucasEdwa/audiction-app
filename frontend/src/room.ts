@@ -10,4 +10,5 @@ const socket:Socket = io('http://localhost:3000',{
 
 socket.on("bid",(bid)=>{
   
+  console.log(bid)
 })
