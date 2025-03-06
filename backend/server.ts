@@ -3,6 +3,7 @@ import http from 'http';
 import { Server, Socket } from 'socket.io';
 import *  as data  from './data/database';
 import cors from 'cors';
+import { IBid } from './data/auction';
 
 const app = express();
 app.use(cors())
@@ -15,11 +16,12 @@ const io = new Server(server,{
 
 // Serve static files (frontend)
 app.use(express.static('public'));
-
+const users= new Map<string, string>()
 // Socket.IO connection
 io.on('connection', (socket: Socket) => {
   console.log('A user connected:', socket.id);
 
+  
 // // SMARTASTE ROOMHANTERINGEN
 //   var query = socket.handshake.query;
 //   var roomName = query.roomName as string;
@@ -28,6 +30,13 @@ io.on('connection', (socket: Socket) => {
   // Lägg till socketio message placeBid (namn, belopp)
 
   // Handle disconnection
+  socket.on("send-bid", (bid:IBid)=>{
+    socket.emit("bid", bid)
+  })
+  socket.on("user-connected",(userName:string)=>{
+    users.set(socket.id,userName)
+    console.log(userName)
+  } )
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);
   });

@@ -4,3 +4,8 @@ export class Auction{
 
     }
 }
+export interface IBid{
+    userName: string,
+    bid: number,
+    bidDate: Date
+}
