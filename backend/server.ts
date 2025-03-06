@@ -28,7 +28,6 @@ io.on('connection', (socket: Socket) => {
   socket.join(roomName);
 
 
-  // Handle disconnection
   socket.on("send-bid", (bid:IBid)=>{
     socket.emit("bid", bid)
   })
