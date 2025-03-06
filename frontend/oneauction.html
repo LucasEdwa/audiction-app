@@ -1,32 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!doctype html>
+<html lang="sv">
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auction Details</title>
-</head>
-<body>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="bidContainer">
-        </tbody>
-    </table>
-    <script type="module">
-        import { getAuctionById } from './src/main.js';
+    <title>Auktionsdetaljer - Bilauktioner</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-content">
+        <h1>Auktionsdetaljer</h1>
+        <a href="/" class="back-link">← Tillbaka till alla auktioner</a>
+      </div>
+    </header>
+    
+    <main class="main-content">
+      <section class="auction-details" id="auctionDetails">
+        <!-- Auktionsdetaljer laddas här dynamiskt -->
+      </section>
 
-        // Get the auction ID from the URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const auctionId = urlParams.get('room');
+      <section class="bidding-section">
+        <h2>Lägg ditt bud</h2>
+        <div class="bid-form">
+          <div class="input-group">
+            <input type="text" id="userName" placeholder="Ditt namn" class="form-input">
+          </div>
+          <div class="input-group">
+            <input type="number" id="bidAmount" placeholder="Ditt bud" class="form-input" step="1000">
+            <button id="placeBidButton" class="btn-primary">Lägg bud</button>
+          </div>
+        </div>
+      </section>
 
-        if (auctionId) {
-            getAuctionById(auctionId);
-        }
-    </script>
-</body>
+      <section class="bid-history">
+        <h2>Budhistorik</h2>
+        <div class="bid-list" id="bidContainer">
+          <!-- Budhistorik laddas här dynamiskt -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2024 Bilauktioner. Alla rättigheter förbehållna.</p>
+    </footer>
+
+    <script type="module" src="/src/room.ts"></script>
+  </body>
 </html>
