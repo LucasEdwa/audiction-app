@@ -30,7 +30,7 @@ export function createBidById(auction: Auction): HTMLTableRowElement {
     row.innerHTML = `
         <td>${auction.id}</td>
         <td>${auction.name}</td>
-        <td><button>Send Bid<button></td>
+        <td><button>Send Bid</button></td>
     `;
     bidContainer.appendChild(row);
     return row;
