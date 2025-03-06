@@ -23,7 +23,7 @@ io.on('connection', (socket: Socket) => {
 
   
  
-   var query = socket.handshake.query;
+  var query = socket.handshake.query;
   var roomName = query.roomName as string;
   socket.join(roomName);
 
