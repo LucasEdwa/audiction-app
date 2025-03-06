@@ -4,6 +4,10 @@ import { Server, Socket } from 'socket.io';
 import * as data from './data/database';
 import { IBid } from './data/types';
 import cors from 'cors';
+<<<<<<< HEAD
+=======
+import { IBid } from './data/types';
+>>>>>>> 534b81656d72410efaab4aa73f9bff8da6926de3
 
 const app = express();
 app.use(cors())
@@ -23,9 +27,9 @@ io.on('connection', (socket: Socket) => {
 
   
 // // SMARTASTE ROOMHANTERINGEN
-//   var query = socket.handshake.query;
-//   var roomName = query.roomName as string;
-//   socket.join(roomName);
+  var query = socket.handshake.query;
+  var roomName = query.roomName as string;
+  socket.join(roomName);
 
   // Lägg till socketio message placeBid (namn, belopp)
 
