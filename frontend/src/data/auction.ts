@@ -17,3 +17,11 @@ export interface Auction {
         timestamp: Date;
     }>;
 }
+
+export interface Bid {
+    id: string;
+    auctionId: string;
+    name: string;
+    amount: number;
+    createdAt: Date;
+}

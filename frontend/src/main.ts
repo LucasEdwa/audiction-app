@@ -26,7 +26,7 @@ function showError(message: string) {
 async function getAuctions() {
     try {
         showLoading();
-        const response = await fetch('http://localhost:3000/api/auctions');
+        const response = await fetch('http://localhost:3001/api/auctions');
         if (!response.ok) {
             throw new Error('Kunde inte hämta auktioner');
         }
@@ -130,9 +130,13 @@ document.querySelectorAll('.filter-btn').forEach(button => {
 // Starta applikationen
 getAuctions();
 
-export function createBidById(auction: Auction): HTMLTableRowElement {
-    let bidContainer = document.getElementById("bidContainer") as HTMLTableSectionElement;
-    let row = document.createElement("tr");
+export function createBidById(auction: any): HTMLTableRowElement | null {
+    if (!auction) return null;
+    
+    const bidContainer = document.getElementById("bidContainer") as HTMLTableSectionElement;
+    if (!bidContainer) return null;
+
+    const row = document.createElement("tr");
     row.innerHTML = `
         <td>
             <img src="${auction.imageUrl}" alt="${auction.title}" style="width: 150px; height: auto;">
@@ -153,9 +157,23 @@ export function createBidById(auction: Auction): HTMLTableRowElement {
 }
 
 export function getAuctionById(id: string) {
-    fetch(`http://localhost:3000/api/auctions/${id}`)
-    .then(response => response.json())
-    .then((auction: Auction) => {
-        createBidById(auction);
-    });
+    fetch(`http://localhost:3001/api/auctions/${id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch auction');
+            }
+            return response.json();
+        })
+        .then((auction) => {
+            console.log('Fetched auction:', auction); // Debug log
+            createBidById(auction);
+        })
+        .catch(error => {
+            console.error('Error fetching auction:', error);
+            // Show error to user
+            const bidContainer = document.getElementById("bidContainer");
+            if (bidContainer) {
+                bidContainer.innerHTML = `<div class="error">Failed to load auction: ${error.message}</div>`;
+            }
+        });
 }

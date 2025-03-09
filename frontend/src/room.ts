@@ -1,12 +1,11 @@
 import { Auction } from "./data/auction";
-import { io } from "socket.io-client";
+import { socket } from './socket';
+import { Bid } from "./data/auction";
+// Get auction ID from URL
+const params = new URLSearchParams(window.location.search);
+const auctionId = params.get('room');
 
-const socket = io('http://localhost:3000');
 let currentAuction: Auction | null = null;
-
-// Hämta auktions-ID från URL
-const urlParams = new URLSearchParams(window.location.search);
-const auctionId = urlParams.get('room');
 
 // Element references
 const auctionDetails = document.getElementById('auctionDetails') as HTMLElement;
@@ -15,15 +14,46 @@ const userNameInput = document.getElementById('userName') as HTMLInputElement;
 const bidAmountInput = document.getElementById('bidAmount') as HTMLInputElement;
 const placeBidButton = document.getElementById('placeBidButton') as HTMLButtonElement;
 
+// Add this function to fetch bid history
+async function getBidHistory(auctionId: string) {
+    try {
+        const response = await fetch(`http://localhost:3001/api/bids/${auctionId}`);
+        if (!response.ok) throw new Error('Failed to fetch bid history');
+        const bids = await response.json();
+        
+        // Clear existing bids
+        bidContainer.innerHTML = '<h3>Budhistorik</h3>';
+        
+        // Display bids in reverse chronological order
+        bids.reverse().forEach((bid: Bid) => {
+            const bidElement = document.createElement('div');
+            bidElement.className = 'bid-item';
+            bidElement.innerHTML = `
+                <span class="bid-user">${bid.name}</span>
+                <span class="bid-amount">${Number(bid.amount).toLocaleString()} kr</span>
+                <span class="bid-time">${new Date(bid.createdAt).toLocaleString()}</span>
+            `;
+            bidContainer.appendChild(bidElement);
+        });
+    } catch (error) {
+        console.error('Error fetching bid history:', error);
+        bidContainer.innerHTML = '<p class="error">Kunde inte ladda budhistorik</p>';
+    }
+}
+
 // Hämta och visa auktionsdetaljer
 async function getAuctionDetails() {
+    /** lucas:
+     * here i updated host from 3000 to 3001
+     */
     try {
-        const response = await fetch(`http://localhost:3000/api/auctions/${auctionId}`);
+        const response = await fetch(`http://localhost:3001/api/auctions/${auctionId}`);
         if (!response.ok) throw new Error('Kunde inte hämta auktionsdetaljer');
         
         currentAuction = await response.json();
         displayAuctionDetails();
         setupBidding();
+        await getBidHistory(auctionId!);
     } catch (error) {
         console.error('Fel vid hämtning av auktion:', error);
         showError('Kunde inte ladda auktionen');
@@ -108,47 +138,85 @@ function setupBidding() {
 }
 
 // Lägg ett bud
-function placeBid(userName: string, amount: number) {
+async function placeBid(userName: string, amount: number) {
     if (!currentAuction) return;
+    /** lucas:
+     * here i updated function to send bid to backend
+     */
+    try {
+        const response = await fetch(`http://localhost:3001/api/create-bid`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                auctionId: currentAuction.id, 
+                name: userName, 
+                amount: amount 
+            })
+        });
 
-    const bid = {
-        id: Date.now().toString(),
-        auctionId: currentAuction.id,
-        userId: userName,
-        amount: amount,
-        timestamp: new Date()
-    };
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to place bid');
+        }
 
-    socket.emit('send-bid', bid);
+        const bid = await response.json();
+        socket.emit('send-bid', bid);
+    } catch (error) {
+        console.error('Error placing bid:', error);
+        alert(error instanceof Error ? error.message : 'Failed to place bid');
+    }
 }
 
-// Lyssna på nya bud
-socket.on('bid', (bid: any) => {
+// Update the new bid listener with proper UI updates
+socket.on('new-bid', (bid) => {
+    console.log('New bid received:', bid);
     if (!currentAuction || bid.auctionId !== currentAuction.id) return;
 
-    // Uppdatera currentPrice
+    // Update current price
     currentAuction.currentPrice = bid.amount;
     displayAuctionDetails();
 
-    // Lägg till budet i historiken
+    // Add new bid to history at the top
     const bidElement = document.createElement('div');
     bidElement.className = 'bid-item';
     bidElement.innerHTML = `
-        <span class="bid-user">${bid.userId}</span>
-        <span class="bid-amount">${bid.amount.toLocaleString()} kr</span>
-        <span class="bid-time">${new Date(bid.timestamp).toLocaleString()}</span>
+        <span class="bid-user">${bid.name}</span>
+        <span class="bid-amount">${Number(bid.amount).toLocaleString()} kr</span>
+        <span class="bid-time">${new Date(bid.createdAt).toLocaleString()}</span>
     `;
-    bidContainer.insertBefore(bidElement, bidContainer.firstChild);
+    
+    const header = bidContainer.querySelector('h3');
+    if (header) {
+        bidContainer.insertBefore(bidElement, header.nextSibling);
+    } else {
+        bidContainer.insertBefore(bidElement, bidContainer.firstChild);
+    }
 
-    // Uppdatera minimum bud
+    // Update minimum bid
     bidAmountInput.min = (bid.amount + 1000).toString();
     bidAmountInput.placeholder = `Minst ${(bid.amount + 1000).toLocaleString()} kr`;
+
 });
 
-// Anslut till socket.io room
 if (auctionId) {
-    socket.emit('user-connected', 'Anonym användare');
-    getAuctionDetails();
+    try {
+        // Join auction room
+        socket.emit('join-auction', auctionId);
+        
+        // Get auction details
+        getAuctionDetails();
+
+        // Listen for new bids
+        socket.on('new-bid', (bid) => {
+            console.log('New bid received:', bid);
+            // Update UI with new bid
+        });
+
+    } catch (error) {
+        console.error('Error in room setup:', error);
+    }
 } else {
-    showError('Ingen auktion specificerad');
+    console.error('No auction ID provided');
 }

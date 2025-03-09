@@ -1,6 +1,6 @@
-import { IAuction, IBid } from './types';
+import { Bid } from './Bid';
 
-export class Auction implements IAuction {
+export class Auction {
     public title: string;
     public description: string = '';
     public currentPrice: number;
@@ -8,8 +8,8 @@ export class Auction implements IAuction {
     public endTime: Date;
     public status: 'active' | 'ended' = 'active';
     public createdAt: Date = new Date();
-    public category: 'luxury' | 'sport' | 'classic' | 'electric' | 'suv' = 'luxury';
-    public bids: IBid[] = [];
+    public category: 'luxury' | 'sport' | 'classic' | 'electric' | 'suv'|'family' = 'luxury';
+    public bids: Bid[] = [];
 
     constructor(
         public id: string,
@@ -22,4 +22,3 @@ export class Auction implements IAuction {
     }
 }
 
-export { IBid };
