@@ -21,12 +21,6 @@ export const CreateTableIfDontExist = async () => {
     try {
         console.log('Creating tables...');
         
-        // Drop existing tables in correct order
-        // await connection.query('DROP TABLE IF EXISTS bids');
-        // await connection.query('DROP TABLE IF EXISTS users');
-        // await connection.query('DROP TABLE IF EXISTS auctions');
-        
-        // Create tables in correct order
         await connection.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -119,7 +113,6 @@ export const getAuctions = async () => {
 export const createBid = async (bid: Bid) => {
     const connection = await pool.getConnection();
     try {
-        // Verify auction exists and check current price
         const [auctions]: any = await connection.query(
             'SELECT id, currentPrice FROM auctions WHERE id = ? AND status = "active"', 
             [bid.auctionId]
@@ -129,18 +122,15 @@ export const createBid = async (bid: Bid) => {
             throw new Error('Auction not found or has ended');
         }
 
-        // Check if bid amount is higher than current price
         if (bid.amount <= auctions[0].currentPrice) {
             throw new Error(`Bid must be higher than current price: ${auctions[0].currentPrice}`);
         }
 
-        // Insert bid
         const [result]: any = await connection.query(
             'INSERT INTO bids (auctionId, name, amount) VALUES (?, ?, ?)', 
             [bid.auctionId, bid.name, bid.amount]
         );
         
-        // Update auction current price
         await connection.query(
             'UPDATE auctions SET currentPrice = ? WHERE id = ?',
             [bid.amount, bid.auctionId]
@@ -169,7 +159,7 @@ export const getCarById = async (id: string) => {
             'SELECT * FROM auctions WHERE id = ?', 
             [id]
         );
-        console.log('Query result:', { id, rows }); // Debug log
+        console.log('Query result:', { id, rows });
         return rows[0] || null;
     } catch (error) {
         console.error('Database error:', error);

@@ -3,7 +3,7 @@ import { Auction } from "../models/Auction";
 export let auctions: Array<Auction> = [];
 
 export function Init() {
-    // Lyxbilar
+
     auctions.push(new Auction(
         "MB-AMG",
         "Mercedes-Benz AMG GT 2024",

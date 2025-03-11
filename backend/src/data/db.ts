@@ -1,6 +1,5 @@
 import { CarData } from '../types/types';
 
-// Database of available cars
 export const carDatabase: CarData[] = [
     {
         id: "MB-AMG",

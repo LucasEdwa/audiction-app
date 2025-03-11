@@ -1,9 +1,8 @@
 import { Auction } from "./data/auction";
 
 let auctionGrid = document.getElementById("auctionGrid") as HTMLDivElement;
-let auctions: Auction[] = []; // Spara alla auktioner
+let auctions: Auction[] = [];
 
-// Visa laddningsindikator
 function showLoading() {
     auctionGrid.innerHTML = `
         <div class="loading">
@@ -12,7 +11,6 @@ function showLoading() {
     `;
 }
 
-// Visa felmeddelande
 function showError(message: string) {
     auctionGrid.innerHTML = `
         <div class="error">
@@ -22,7 +20,6 @@ function showError(message: string) {
     `;
 }
 
-// Hämta alla auktioner och visa dem
 async function getAuctions() {
     try {
         showLoading();
@@ -31,7 +28,7 @@ async function getAuctions() {
             throw new Error('Kunde inte hämta auktioner');
         }
         const data = await response.json();
-        console.log('Hämtade auktioner:', data); // Debug-loggning
+        console.log('Hämtade auktioner:', data);
         auctions = data;
         displayAuctions(auctions);
     } catch (error) {
@@ -40,7 +37,6 @@ async function getAuctions() {
     }
 }
 
-// Visa auktioner baserat på filter
 function displayAuctions(auctionsToShow: Auction[]) {
     if (auctionsToShow.length === 0) {
         auctionGrid.innerHTML = `
@@ -51,19 +47,17 @@ function displayAuctions(auctionsToShow: Auction[]) {
         return;
     }
 
-    auctionGrid.innerHTML = ''; // Rensa griden
+    auctionGrid.innerHTML = '';
     auctionsToShow.forEach(auction => {
         auctionGrid.appendChild(createAuctionCard(auction));
     });
 }
 
-// Skapa ett kort för en auktion
 function createAuctionCard(auction: Auction): HTMLDivElement {
     const card = document.createElement("div");
     card.className = "product-card";
     card.dataset.category = auction.category;
     
-    // Beräkna tid kvar
     const timeLeft = getTimeLeft(auction.endTime);
     
     card.innerHTML = `
@@ -82,7 +76,6 @@ function createAuctionCard(auction: Auction): HTMLDivElement {
     return card;
 }
 
-// Beräkna och formatera tid kvar
 function getTimeLeft(endTime: Date): string {
     const end = new Date(endTime);
     const now = new Date();
@@ -104,18 +97,15 @@ function getTimeLeft(endTime: Date): string {
     }
 }
 
-// Hantera filtrering
 document.querySelectorAll('.filter-btn').forEach(button => {
     button.addEventListener('click', (e) => {
         const filterBtn = e.target as HTMLButtonElement;
         const filter = filterBtn.dataset.filter;
 
-        // Uppdatera aktiv knapp
         document.querySelectorAll('.filter-btn').forEach(btn => 
             btn.classList.remove('active'));
         filterBtn.classList.add('active');
 
-        // Filtrera auktioner
         if (filter === 'all') {
             displayAuctions(auctions);
         } else {
@@ -127,7 +117,6 @@ document.querySelectorAll('.filter-btn').forEach(button => {
     });
 });
 
-// Starta applikationen
 getAuctions();
 
 export function createBidById(auction: any): HTMLTableRowElement | null {
@@ -165,12 +154,11 @@ export function getAuctionById(id: string) {
             return response.json();
         })
         .then((auction) => {
-            console.log('Fetched auction:', auction); // Debug log
+            console.log('Fetched auction:', auction);
             createBidById(auction);
         })
         .catch(error => {
             console.error('Error fetching auction:', error);
-            // Show error to user
             const bidContainer = document.getElementById("bidContainer");
             if (bidContainer) {
                 bidContainer.innerHTML = `<div class="error">Failed to load auction: ${error.message}</div>`;

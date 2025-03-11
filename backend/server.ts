@@ -21,7 +21,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173", // Your frontend URL
+        origin: "http://localhost:5173",
         methods: ["GET", "POST"],
         credentials: true
     },
@@ -29,27 +29,21 @@ const io = new Server(server, {
     transports: ['websocket', 'polling']
 });
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Socket.IO handling
 io.on('connection', (socket: Socket) => {
     console.log('Client connected:', socket.id);
 
-    // Handshake for joining auction room
     socket.on('join-auction', async (auctionId: string) => {
         try {
-            // Join the room
             socket.join(auctionId);
             
-            // Get auction details and bid history
             const [auction, bids] = await Promise.all([
                 getCarById(auctionId),
                 getBidByAuctionId(auctionId)
             ]);
 
-            // Send initial data to client
             socket.emit('auction-joined', { 
                 auction, 
                 bids,
@@ -67,18 +61,14 @@ io.on('connection', (socket: Socket) => {
 
     socket.on('send-bid', async (bid: Bid) => {
         try {
-            // Validate and save bid
             const savedBid = await createBid(bid);
             
-            // Broadcast to all clients in the room
             io.to(bid.auctionId).emit('new-bid', savedBid);
             
-            // Confirm to sender
             socket.emit('bid-confirmed', savedBid);
             
             console.log(`New bid in auction ${bid.auctionId}: ${bid.amount} by ${bid.name}`);
         } catch (error) {
-            // Send error only to sender
             socket.emit('bid-error', {
                 error: 'Failed to place bid',
                 details: error instanceof Error ? error.message : 'Unknown error'
@@ -95,7 +85,6 @@ interface AuctionParams extends ParamsDictionary {
   id: string;
 }
 
-// API Routes
 app.get("/api/auctions", async (req: Request, res: Response) => {
   try {
     res.json(await getAuctions());
@@ -146,7 +135,6 @@ app.get("/api/bids/:auctionId", async (req: Request, res: Response) => {
   res.json(bids);
 });
 
-// Start server
 const PORT = 3001;
 CreateTableIfDontExist()
   .then(() => initializeDatabase())

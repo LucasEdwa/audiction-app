@@ -1,30 +1,25 @@
 import { Auction } from "./data/auction";
 import { socket } from './socket';
 import { Bid } from "./data/auction";
-// Get auction ID from URL
 const params = new URLSearchParams(window.location.search);
 const auctionId = params.get('room');
 
 let currentAuction: Auction | null = null;
 
-// Element references
 const auctionDetails = document.getElementById('auctionDetails') as HTMLElement;
 const bidContainer = document.getElementById('bidContainer') as HTMLElement;
 const userNameInput = document.getElementById('userName') as HTMLInputElement;
 const bidAmountInput = document.getElementById('bidAmount') as HTMLInputElement;
 const placeBidButton = document.getElementById('placeBidButton') as HTMLButtonElement;
 
-// Add this function to fetch bid history
 async function getBidHistory(auctionId: string) {
     try {
         const response = await fetch(`http://localhost:3001/api/bids/${auctionId}`);
         if (!response.ok) throw new Error('Failed to fetch bid history');
         const bids = await response.json();
         
-        // Clear existing bids
         bidContainer.innerHTML = '<h3>Budhistorik</h3>';
         
-        // Display bids in reverse chronological order
         bids.reverse().forEach((bid: Bid) => {
             const bidElement = document.createElement('div');
             bidElement.className = 'bid-item';
@@ -41,11 +36,8 @@ async function getBidHistory(auctionId: string) {
     }
 }
 
-// Hämta och visa auktionsdetaljer
 async function getAuctionDetails() {
-    /** lucas:
-     * here i updated host from 3000 to 3001
-     */
+    
     try {
         const response = await fetch(`http://localhost:3001/api/auctions/${auctionId}`);
         if (!response.ok) throw new Error('Kunde inte hämta auktionsdetaljer');
@@ -60,7 +52,6 @@ async function getAuctionDetails() {
     }
 }
 
-// Visa auktionsdetaljer
 function displayAuctionDetails() {
     if (!currentAuction) return;
 
@@ -84,7 +75,6 @@ function displayAuctionDetails() {
     `;
 }
 
-// Beräkna och formatera tid kvar
 function getTimeLeft(endTime: Date): string {
     const end = new Date(endTime);
     const now = new Date();
@@ -100,7 +90,6 @@ function getTimeLeft(endTime: Date): string {
     return "Mindre än en timme kvar";
 }
 
-// Visa felmeddelande
 function showError(message: string) {
     auctionDetails.innerHTML = `
         <div class="error">
@@ -110,15 +99,12 @@ function showError(message: string) {
     `;
 }
 
-// Sätt upp budgivning
 function setupBidding() {
     if (!currentAuction) return;
 
-    // Sätt minimum bud
     bidAmountInput.min = (currentAuction.currentPrice + 1000).toString();
     bidAmountInput.placeholder = `Minst ${(currentAuction.currentPrice + 1000).toLocaleString()} kr`;
 
-    // Hantera budgivning
     placeBidButton.addEventListener('click', () => {
         const userName = userNameInput.value.trim();
         const bidAmount = parseInt(bidAmountInput.value);
@@ -137,12 +123,9 @@ function setupBidding() {
     });
 }
 
-// Lägg ett bud
 async function placeBid(userName: string, amount: number) {
     if (!currentAuction) return;
-    /** lucas:
-     * here i updated function to send bid to backend
-     */
+
     try {
         const response = await fetch(`http://localhost:3001/api/create-bid`, {
             method: 'POST',
@@ -169,16 +152,13 @@ async function placeBid(userName: string, amount: number) {
     }
 }
 
-// Update the new bid listener with proper UI updates
 socket.on('new-bid', (bid) => {
     console.log('New bid received:', bid);
     if (!currentAuction || bid.auctionId !== currentAuction.id) return;
 
-    // Update current price
     currentAuction.currentPrice = bid.amount;
     displayAuctionDetails();
 
-    // Add new bid to history at the top
     const bidElement = document.createElement('div');
     bidElement.className = 'bid-item';
     bidElement.innerHTML = `
@@ -194,7 +174,6 @@ socket.on('new-bid', (bid) => {
         bidContainer.insertBefore(bidElement, bidContainer.firstChild);
     }
 
-    // Update minimum bid
     bidAmountInput.min = (bid.amount + 1000).toString();
     bidAmountInput.placeholder = `Minst ${(bid.amount + 1000).toLocaleString()} kr`;
 
@@ -202,16 +181,12 @@ socket.on('new-bid', (bid) => {
 
 if (auctionId) {
     try {
-        // Join auction room
         socket.emit('join-auction', auctionId);
         
-        // Get auction details
         getAuctionDetails();
 
-        // Listen for new bids
         socket.on('new-bid', (bid) => {
             console.log('New bid received:', bid);
-            // Update UI with new bid
         });
 
     } catch (error) {

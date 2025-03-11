@@ -18,7 +18,7 @@ export class Auction {
     ) {
         this.title = name;
         this.currentPrice = startingPrice;
-        this.endTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dagar från nu
+        this.endTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     }
 }
 

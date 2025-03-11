@@ -1,4 +1,3 @@
-// Auction interfaces
 export interface Auction {
     id: string;
     title: string;
@@ -13,7 +12,6 @@ export interface Auction {
     bids: Bid[];
 }
 
-// Bid interface
 export interface Bid {
     id?: number;
     auctionId: string;
@@ -22,7 +20,6 @@ export interface Bid {
     createdAt?: Date;
 }
 
-// User interface
 export interface User {
     id?: number;
     name: string;
@@ -30,7 +27,6 @@ export interface User {
     bids?: Bid[];
 }
 
-// Car data interface
 export interface CarData {
     id: string;
     name: string;
