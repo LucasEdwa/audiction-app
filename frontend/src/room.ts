@@ -12,6 +12,21 @@ const userNameInput = document.getElementById('userName') as HTMLInputElement;
 const bidAmountInput = document.getElementById('bidAmount') as HTMLInputElement;
 const placeBidButton = document.getElementById('placeBidButton') as HTMLButtonElement;
 
+// Add this helper function for date formatting
+function formatDate(dateString: string | Date): string {
+    const date = dateString instanceof Date ? dateString : new Date(dateString);
+    if (isNaN(date.getTime())) {
+        return 'Invalid date';
+    }
+    return date.toLocaleString('sv-SE', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
 // Add this function to fetch bid history
 async function getBidHistory(auctionId: Bid['auctionId']) {
     try {
@@ -27,7 +42,7 @@ async function getBidHistory(auctionId: Bid['auctionId']) {
             bidElement.innerHTML = `
                 <span class="bid-user">${bid.name}</span>
                 <span class="bid-amount">${Number(bid.amount).toLocaleString()} kr</span>
-                <span class="bid-time">${new Date(bid.createdAt).toLocaleString()}</span>
+                <span class="bid-time">${formatDate(bid.createdAt)}</span>
             `;
             bidContainer.appendChild(bidElement);
         });
@@ -126,7 +141,6 @@ function setupBidding() {
 
 async function placeBid(userName: string, amount: number) {
     if (!currentAuction) return;
-
     try {
         const response = await fetch(`http://localhost:3001/api/create-bid`, {
             method: 'POST',
@@ -145,8 +159,10 @@ async function placeBid(userName: string, amount: number) {
             throw new Error(error.error || 'Failed to place bid');
         }
 
-        const bid = await response.json();
-        socket.emit('send-bid', bid);
+        // Reset input fields after successful bid
+        bidAmountInput.value = '';
+        userNameInput.value = '';
+        
     } catch (error) {
         console.error('Error placing bid:', error);
         alert(error instanceof Error ? error.message : 'Failed to place bid');
@@ -156,7 +172,9 @@ async function placeBid(userName: string, amount: number) {
 socket.on('new-bid', (bid) => {
     console.log('New bid received:', bid);
     if (!currentAuction || bid.auctionId !== currentAuction.id) return;
-
+    if (!bid.createdAt) {
+        bid.createdAt = new Date().toISOString();
+    }
     currentAuction.currentPrice = bid.amount;
     displayAuctionDetails();
 
@@ -165,7 +183,7 @@ socket.on('new-bid', (bid) => {
     bidElement.innerHTML = `
         <span class="bid-user">${bid.name}</span>
         <span class="bid-amount">${Number(bid.amount).toLocaleString()} kr</span>
-        <span class="bid-time">${new Date(bid.createdAt).toLocaleString()}</span>
+        <span class="bid-time">${formatDate(new Date(bid.createdAt))}</span>
     `;
     
     const header = bidContainer.querySelector('h3');
@@ -177,7 +195,6 @@ socket.on('new-bid', (bid) => {
 
     bidAmountInput.min = (bid.amount + 1000).toString();
     bidAmountInput.placeholder = `Minst ${(bid.amount + 1000).toLocaleString()} kr`;
-
 });
 
 if (auctionId) {
@@ -185,10 +202,6 @@ if (auctionId) {
         socket.emit('join-auction', auctionId);
         
         getAuctionDetails();
-
-        socket.on('new-bid', (bid) => {
-            console.log('New bid received:', bid);
-        });
 
     } catch (error) {
         console.error('Error in room setup:', error);
