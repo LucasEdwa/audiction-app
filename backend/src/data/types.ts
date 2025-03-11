@@ -8,7 +8,7 @@ export interface IAuction {
     endTime: Date;
     status: 'active' | 'ended';
     createdAt: Date;
-    category: 'luxury' | 'sport' | 'classic' | 'electric' | 'suv' | 'family';
+    category: 'luxury' | 'sport' | 'classic' | 'electric' | 'suv' ;
     bids: IBid[];
 }
 

@@ -15,7 +15,7 @@ const bidAmountInput = document.getElementById('bidAmount') as HTMLInputElement;
 const placeBidButton = document.getElementById('placeBidButton') as HTMLButtonElement;
 
 // Add this function to fetch bid history
-async function getBidHistory(auctionId: string) {
+async function getBidHistory(auctionId: Bid['auctionId']) {
     try {
         const response = await fetch(`http://localhost:3001/api/bids/${auctionId}`);
         if (!response.ok) throw new Error('Failed to fetch bid history');
