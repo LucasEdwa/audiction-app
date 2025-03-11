@@ -140,7 +140,7 @@ socket.on('bid-error', ({ error, details }) => {
 ## Screenshots
 
 ### Full app steps
-![foto](./frontend/public/schema.png)
+![foto](./frontend/public/Schema.png)
 
 ### Start Page
 ![foto](./frontend/public/startPage.png)
