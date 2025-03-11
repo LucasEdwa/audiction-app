@@ -135,7 +135,7 @@ app.get("/api/bids/:auctionId", async (req: Request, res: Response) => {
   res.json(bids);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 CreateTableIfDontExist()
   .then(() => initializeDatabase())
   .then(() => {
