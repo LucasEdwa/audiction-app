@@ -142,7 +142,7 @@ export const createBid = async (bid: Bid) => {
         connection.release();
     }
 };
-export const getBidByAuctionId = async (auctionId: string) => {
+export const getBidByAuctionId = async (auctionId: Bid ['auctionId']) => {
     const connection = await pool.getConnection();
     try {
         const [rows] = await connection.query('SELECT * FROM bids WHERE auctionId = ?', [auctionId]);
