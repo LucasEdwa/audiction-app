@@ -1,4 +1,4 @@
-import { Auction } from "../models/Auction";
+import { Auction } from "../types/types";
 
 export let auctions: Array<Auction> = [];
 

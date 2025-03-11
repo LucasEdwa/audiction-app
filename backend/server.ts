@@ -11,8 +11,7 @@ import {
   getCarById,
   getBidByAuctionId,
 } from "./src/data/connection";
-import { Bid } from "./src/data/Bid";
-import { User } from "./src/models/User";
+import { Bid } from "./src/types/types";
 import { NextFunction, ParamsDictionary } from "express-serve-static-core";
 
 const app = express();
@@ -33,7 +32,7 @@ app.use(express.json());
 io.on('connection', (socket: Socket) => {
     console.log('Client connected:', socket.id);
 
-    socket.on('join-auction', async (auctionId: Bid['auctionId']) => {
+    socket.on('join-auction', async (auctionId: string) => {
         try {
             socket.join(auctionId);
             
@@ -101,7 +100,7 @@ app.get("/api/auctions/:id", (req: Request<AuctionParams>, res: Response, next: 
 });
 app.post("/api/create-user", async (req: Request, res: Response) => {
   try {
-    const user = new User(req.body.name, req.body.email);
+    const user = {name: req.body.name, email: req.body.email, bids: []};
     const createdUser = await createUser(user);
     res
       .status(201)

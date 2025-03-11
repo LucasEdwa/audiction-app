@@ -33,8 +33,10 @@ async function getBidHistory(auctionId: Bid['auctionId']) {
         if (!response.ok) throw new Error('Failed to fetch bid history');
         const bids = await response.json();
         
-        bidContainer.innerHTML = '<h3>Budhistorik</h3>';
-        
+        if (bids.length < 1) {
+            bidContainer.innerHTML = '<p class="error">Inga bud hittades</p>';
+            return;
+        }
         bids.reverse().forEach((bid: Bid) => {
             const bidElement = document.createElement('div');
             bidElement.className = 'bid-item';
@@ -176,6 +178,9 @@ socket.on('new-bid', (bid) => {
     currentAuction.currentPrice = bid.amount;
     displayAuctionDetails();
 
+    // Clear the "no bids" message if it exists
+    bidContainer.innerHTML = '';
+
     const bidElement = document.createElement('div');
     bidElement.className = 'bid-item';
     bidElement.innerHTML = `
@@ -184,12 +189,7 @@ socket.on('new-bid', (bid) => {
         <span class="bid-time">${formatDate(new Date(bid.createdAt))}</span>
     `;
     
-    const header = bidContainer.querySelector('h3');
-    if (header) {
-        bidContainer.insertBefore(bidElement, header.nextSibling);
-    } else {
-        bidContainer.insertBefore(bidElement, bidContainer.firstChild);
-    }
+    bidContainer.appendChild(bidElement);
 
     bidAmountInput.min = (bid.amount + 1000).toString();
     bidAmountInput.placeholder = `Minst ${(bid.amount + 1000).toLocaleString()} kr`;

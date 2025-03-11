@@ -1,11 +1,11 @@
-# Assignment
-* gör så auktionssajten funkar (med websockets)
+# Auction Site with WebSockets
 
-## Backend
-* smart roomhantering har ni i servern och client (bortkommenterat)
+## Implementation Overview
 
-#### socket connection
-```
+### Backend Setup
+
+#### Socket.IO Server Configuration
+```typescript
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:5173",
@@ -15,26 +15,29 @@ const io = new Server(server, {
     pingTimeout: 60000,
     transports: ['websocket', 'polling']
 });
+```
 
+#### Connection & Room Management
+```typescript
 io.on('connection', (socket: Socket) => {
-    console.log('Client connected:', socket.id);
 
+    // Join auction room
     socket.on('join-auction', async (auctionId: string) => {
         try {
             socket.join(auctionId);
             
+            // Fetch auction data and bid history
             const [auction, bids] = await Promise.all([
                 getCarById(auctionId),
                 getBidByAuctionId(auctionId)
             ]);
 
+            // Send initial data to client
             socket.emit('auction-joined', { 
                 auction, 
                 bids,
                 message: `Connected to auction ${auctionId}`
             });
-
-            console.log(`Client ${socket.id} joined auction ${auctionId}`);
         } catch (error) {
             socket.emit('auction-error', { 
                 error: 'Failed to join auction',
@@ -42,21 +45,64 @@ io.on('connection', (socket: Socket) => {
             });
         }
     });
+
+    // Handle new bids
+    socket.on('send-bid', async (bid: Bid) => {
+        try {
+            const savedBid = await createBid(bid);
+            io.to(bid.auctionId).emit('new-bid', savedBid);
+            socket.emit('bid-confirmed', savedBid);
+        } catch (error) {
+            socket.emit('bid-error', {
+                error: 'Failed to place bid',
+                details: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    });
+
+    // Handle disconnection
+    socket.on('disconnect', (reason) => {
+        console.log(`Client ${socket.id} disconnected: ${reason}`);
+    });
+});
 ```
 
-## Frontend
-* room.ts
+### Frontend Implementation
 
- Auction via fetch -
+#### Socket Connection (socket.ts)
+```typescript
+export const socket = io("http://localhost:3001", {
+    withCredentials: true,
+    transports: ['websocket', 'polling']
+});
 
+socket.on("connect_error", (error) => {
+    console.error("Socket connection error:", error);
+});
+```
+
+#### Auction Room Management (room.ts)
+```typescript
+// Join auction room
+if (auctionId) {
+    socket.emit('join-auction', auctionId);
+    getAuctionDetails();
+}
+
+// Handle new bids
 socket.on('new-bid', (bid) => {
     if (!currentAuction || bid.auctionId !== currentAuction.id) return;
+    
+    // Ensure timestamp
     if (!bid.createdAt) {
         bid.createdAt = new Date().toISOString();
     }
+
+    // Update auction price
     currentAuction.currentPrice = bid.amount;
     displayAuctionDetails();
 
+    // Add new bid to history
     const bidElement = document.createElement('div');
     bidElement.className = 'bid-item';
     bidElement.innerHTML = `
@@ -64,37 +110,37 @@ socket.on('new-bid', (bid) => {
         <span class="bid-amount">${Number(bid.amount).toLocaleString()} kr</span>
         <span class="bid-time">${formatDate(new Date(bid.createdAt))}</span>
     `;
-    
-    const header = bidContainer.querySelector('h3');
-    if (header) {
-        bidContainer.insertBefore(bidElement, header.nextSibling);
-    } else {
-        bidContainer.insertBefore(bidElement, bidContainer.firstChild);
-    }
+    bidContainer.appendChild(bidElement);
 
+    // Update minimum bid
     bidAmountInput.min = (bid.amount + 1000).toString();
     bidAmountInput.placeholder = `Minst ${(bid.amount + 1000).toLocaleString()} kr`;
 });
 
-
-* socket.ts 
-
-  websocket 
-
-export const socket = io("http://localhost:3001", {
-  withCredentials: true,
-  transports: ['websocket', 'polling']
+// Handle errors
+socket.on('auction-error', ({ error, details }) => {
+    showError(`${error}: ${details}`);
 });
 
-socket.on("connect_error", (error) => {
-  console.error("Socket connection error:", error);
-}); 
+socket.on('bid-error', ({ error, details }) => {
+    alert(`${error}: ${details}`);
+});
+```
 
-##Start Page
+## Features
+- Real-time bidding updates
+- Room-based communication
+- Automatic price updates
+- Bid history display
+- Error handling
+- Connection management
+- Input validation
+- Formatted currency and dates
 
+## Screenshots
+
+### Start Page
 ![foto](./startPage.png)
 
-
-##Bid Page
-
+### Bid Page
 ![foto](./bidPage.png)

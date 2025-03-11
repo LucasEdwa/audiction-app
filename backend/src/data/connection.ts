@@ -1,8 +1,7 @@
 import { createPool } from "mysql2/promise";
 import dotenv from 'dotenv';
 import { carDatabase } from './db';
-import { Bid } from "./Bid";
-import { User } from "../models/User";
+import { Bid, User } from "../types/types";
 import {  QueryError } from 'mysql2';
 dotenv.config({ path: './src/.env' });
 
