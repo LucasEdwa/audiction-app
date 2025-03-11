@@ -14,8 +14,6 @@ import {
 import { Bid } from "./src/data/Bid";
 import { User } from "./src/models/User";
 import { NextFunction, ParamsDictionary } from "express-serve-static-core";
-import { Auction } from "./src/types/types";
-import { auctions } from "./src/data/database";
 
 const app = express();
 const server = http.createServer(app);
@@ -35,7 +33,7 @@ app.use(express.json());
 io.on('connection', (socket: Socket) => {
     console.log('Client connected:', socket.id);
 
-    socket.on('join-auction', async (auctionId: string) => {
+    socket.on('join-auction', async (auctionId: Bid['auctionId']) => {
         try {
             socket.join(auctionId);
             

@@ -12,7 +12,6 @@ const userNameInput = document.getElementById('userName') as HTMLInputElement;
 const bidAmountInput = document.getElementById('bidAmount') as HTMLInputElement;
 const placeBidButton = document.getElementById('placeBidButton') as HTMLButtonElement;
 
-// Add this helper function for date formatting
 function formatDate(dateString: string | Date): string {
     const date = dateString instanceof Date ? dateString : new Date(dateString);
     if (isNaN(date.getTime())) {
@@ -170,7 +169,6 @@ async function placeBid(userName: string, amount: number) {
 }
 
 socket.on('new-bid', (bid) => {
-    console.log('New bid received:', bid);
     if (!currentAuction || bid.auctionId !== currentAuction.id) return;
     if (!bid.createdAt) {
         bid.createdAt = new Date().toISOString();
