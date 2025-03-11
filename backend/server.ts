@@ -14,6 +14,7 @@ import {
 import { Bid } from "./src/data/Bid";
 import { User } from "./src/models/User";
 import { NextFunction, ParamsDictionary } from "express-serve-static-core";
+import { Auction } from "./src/types/types";
 import { auctions } from "./src/data/database";
 
 const app = express();

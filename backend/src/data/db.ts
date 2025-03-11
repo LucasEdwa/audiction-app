@@ -1,14 +1,4 @@
-
-
-// Define the car data structure
-interface CarData {
-    id: string;
-    name: string;
-    basePrice: number;
-    description: string;
-    imageUrl: string;
-    category: 'luxury' | 'sport' | 'classic' | 'electric' | 'suv';
-}
+import { CarData } from '../types/types';
 
 // Database of available cars
 export const carDatabase: CarData[] = [
@@ -24,9 +14,9 @@ export const carDatabase: CarData[] = [
         id: "POR-911",
         name: "Porsche 911 GT3 RS",
         basePrice: 2500000,
-        description: "Porsche 911 GT3 RS med PDK växellåda och Weissach-paket. Endast 100 mil.",
-        imageUrl: "https://files.porsche.com/filestore/image/multimedia/none/911-gt3-rs-modelimage-sideshot/model/765148bb-6f4d-11ed-80f5-005056bbdc38/porsche-model.png",
-        category: "luxury"
+        description: "En äkta racerbil för gatan med 525 hk och 4.0L boxermotor.",
+        imageUrl: "https://files.porsche.com/filestore/image/multimedia/none/992-gt3-rs-modelimage-sideshot/model/75ea02c7-32d5-11ed-80f5-005056bbdc38/porsche-model.png",
+        category: "sport"
     },
     {
         id: "BMW-M4",
@@ -91,6 +81,14 @@ export const carDatabase: CarData[] = [
         description: "Lamborghini Urus med 650 hk. Giallo Auge, svart Alcantara interiör.",
         imageUrl: "https://www.lamborghini.com/sites/it-en/files/DAM/lamborghini/facelift_2019/model_gw/urus/2023/model_chooser/urus_s_m.jpg",
         category: "suv"
+    },
+    {
+        id: "LAM-SVJ",
+        name: "Lamborghini Aventador SVJ",
+        basePrice: 4000000,
+        description: "Limited edition Aventador SVJ med V12-motor och 770 hk.",
+        imageUrl: "https://www.lamborghini.com/sites/it-en/files/DAM/lamborghini/facelift_2019/model_gw/aventador/2021/gate_aven_s_01_m.jpg",
+        category: "luxury"
     }
 ];
 
