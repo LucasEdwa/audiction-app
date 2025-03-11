@@ -139,8 +139,12 @@ socket.on('bid-error', ({ error, details }) => {
 
 ## Screenshots
 
+### Full app steps
+![foto](./frontend/public/schema.png)
+
 ### Start Page
-![foto](./startPage.png)
+![foto](./frontend/public/startPage.png)
 
 ### Bid Page
-![foto](./bidPage.png)
+![foto](./frontend/public/bidPage.png)
+
